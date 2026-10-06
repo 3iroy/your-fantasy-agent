@@ -1,3 +1,5 @@
+[Open Your Fantasy Agent](https://nba-fantasy-agent-176221542819.us-east1.run.app) — sign in with a Columbia account.
+
 # Your Fantasy Agent — NBA Fantasy Points-League Agent
 
 Your Fantasy Agent uses ESPN's 2026–2027 player projections and your league's scoring
@@ -108,7 +110,7 @@ projections/outlooks are never used as historical performance or news evidence.
 - Historical news is not connected. The tool explicitly returns that limitation.
   A future news integration must enforce publication dates at/before the cutoff.
 - Responses retain visible name/args/result tool traces. No new UI buttons.
-- The frontend draws an interactive SVG trend chart from returned `game_history`: 
+- The frontend draws an interactive SVG trend chart from returned `game_history`:
   actual game FP, trailing 4- and 10-game averages, and the disjoint earlier
   baseline. Only at/before-cutoff games are returned. Rolling averages start
   once a full window exists. Hover/tap or arrow keys inspect dated points.
