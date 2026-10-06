@@ -1,0 +1,34 @@
+# Configure a GitHub push trigger for ^main$ using this build configuration.
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:$COMMIT_SHA', '.']
+  - name: gcr.io/cloud-builders/docker
+    args: ['push', '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:$COMMIT_SHA']
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:$COMMIT_SHA
+      - --region=${_REGION}
+      - --service-account=${_SERVICE}@$PROJECT_ID.iam.gserviceaccount.com
+      - --set-env-vars=GOOGLE_CLOUD_PROJECT=$PROJECT_ID,VERTEX_LOCATION=global
+      - --memory=1Gi
+      - --cpu=1
+      - --concurrency=8
+      - --min-instances=0
+      - --max-instances=1
+      - --timeout=600
+      - --no-allow-unauthenticated
+      - --iap
+      - --quiet
+substitutions:
+  _REGION: us-east1
+  _REPOSITORY: nba-agent
+  _SERVICE: nba-fantasy-agent
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPOSITORY}/${_SERVICE}:$COMMIT_SHA'
+options:
+  logging: CLOUD_LOGGING_ONLY
+timeout: 1200s

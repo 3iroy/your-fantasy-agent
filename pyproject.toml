@@ -1,0 +1,10 @@
+[project]
+name = "gemini-hello-world"
+version = "0.1.0"
+description = "NBA fantasy points agent with ESPN projections and historical analysis"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.1,<4",
+    "gunicorn>=23,<24",
+    "litellm[google]>=1.0.0",
+]

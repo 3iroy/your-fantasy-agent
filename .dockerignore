@@ -1,0 +1,12 @@
+*
+!Dockerfile
+!pyproject.toml
+!uv.lock
+!app.py
+!tools.py
+!buy_low.py
+!injury_replacement.py
+!templates/
+!templates/**
+!static/
+!static/**
