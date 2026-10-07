@@ -242,12 +242,4 @@ mode; rotation claims, return dates and future minute gains are not invented.
 
 ## Chat workspace
 
-New chat creates a separate conversation in the sidebar (a horizontal tab strip
-on mobile). Existing chats remain available to switch back to, with their own
-session ID, confirmed scoring, draft text, messages, tool traces and charts.
-New chats inherit the current confirmed scoring but have independent model memory.
-Titles use the first user message. Tabs and displayed history are saved in this
-browser tab's sessionStorage and survive refresh, but are not a permanent account
-archive. After a server restart, saved messages remain visible while the app
-clearly reports that model memory has ended and the next message starts a fresh
-session. Switching chats is disabled during a request to avoid mixing responses.
+Each chat keeps its own conversation and scoring settings. You can switch, rename, or delete chats in the sidebar. Chat history survives page refresh within the same browser tab, but model memory resets when the server restarts.
