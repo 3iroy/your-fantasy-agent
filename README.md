@@ -29,7 +29,7 @@ agent. Unconfirmed edits have no effect. Later chat instructions can update
 scoring without the UI overwriting them; confirm the UI again to replace rules.
 Confirmed settings survive refresh within the browser session.
 
-## Three grader sample queries
+## Three sample queries
 
 1. "Use ESPN default points scoring and 2026–2027 projections. Who should I
    draft at overall pick 10?" Then, in the same chat, ask "Change STL to 10;
