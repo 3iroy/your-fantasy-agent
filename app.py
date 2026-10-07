@@ -167,6 +167,15 @@ def history(session_id):
         return jsonify(session_id=session_id, messages=session['display_messages'])
 
 
+@app.delete('/sessions/<session_id>')
+def delete_session(session_id):
+    # Session UUIDs are the same capability used by the existing history route.
+    # A missing session is already deleted (including after a server restart).
+    with sessions_lock:
+        sessions.pop(session_id, None)
+    return jsonify(ok=True, session_id=session_id)
+
+
 def run_agent(messages):
     """Execute bounded tool rounds and send every tool result back to Gemini."""
     traces = []

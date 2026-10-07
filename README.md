@@ -1,4 +1,4 @@
-[Open Your Fantasy Agent](https://nba-fantasy-agent-176221542819.us-east1.run.app) — sign in with a Columbia account.
+[Open Your Fantasy Agent](https://nba-fantasy-agent-avomiaf4aq-ue.a.run.app) — sign in with a Columbia account.
 
 # Your Fantasy Agent — NBA Fantasy Points-League Agent
 

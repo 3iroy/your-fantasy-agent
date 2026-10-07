@@ -59,9 +59,53 @@ function renderTabs() {
     button.setAttribute('aria-pressed', String(chat.id === activeChat.id));
     button.disabled = busy;
     button.addEventListener('click', () => { if (!busy) { switchChat(chat); restoreHistory(); } });
-    tabs.append(button);
+    const row = document.createElement('div');
+    row.className = 'chat-row' + (chat.id === activeChat.id ? ' active' : '');
+    const rename = document.createElement('button');
+    rename.type = 'button';
+    rename.className = 'chat-action';
+    rename.textContent = '✎';
+    rename.setAttribute('aria-label', `Rename ${chat.title}`);
+    rename.title = 'Rename chat';
+    rename.disabled = busy;
+    rename.addEventListener('click', () => {
+      const title = window.prompt('Rename this chat', chat.title);
+      if (title?.trim()) { chat.title = title.trim().slice(0, 80); saveChats(); renderTabs(); }
+    });
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'chat-action delete-chat';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', `Delete ${chat.title}`);
+    remove.title = 'Delete chat';
+    remove.disabled = busy;
+    remove.addEventListener('click', () => deleteChat(chat));
+    row.append(button, rename, remove);
+    tabs.append(row);
   }
 }
+async function deleteChat(chat) {
+  if (busy || !window.confirm(`Delete “${chat.title}”? Its messages and tool history will be removed. This cannot be undone.`)) return;
+  setBusy(true);
+  try {
+    if (chat.sessionId) {
+      const response = await fetch(`/sessions/${encodeURIComponent(chat.sessionId)}`, {method: 'DELETE'});
+      if (!response.ok && response.status !== 404) throw new Error('Could not delete this chat. Please try again.');
+    }
+    chatState.chats = chatState.chats.filter(c => c.id !== chat.id);
+    if (!chatState.chats.length) {
+      chatState.chats.push({id: crypto.randomUUID(), title: 'New chat', sessionId: null,
+        scoring: confirmedScoring ? {...confirmedScoring} : null,
+        scoringPending: Boolean(confirmedScoring), entries: [], draft: ''});
+    }
+    if (activeChat.id === chat.id) switchChat(chatState.chats[chatState.chats.length - 1]);
+    saveChats();
+    status.textContent = 'Chat deleted.';
+  } catch (error) {
+    status.textContent = error.message || 'Could not delete this chat. Please try again.';
+  } finally { setBusy(false); }
+}
+
 function switchChat(chat) {
   activeChat.draft = input.value;
   activeChat = chat;
@@ -135,6 +179,46 @@ function renderAnswer(content) {
   return container;
 }
 
+function attachPlayerPortraits(body, calls) {
+  const players = new Map();
+  for (const call of calls || []) {
+    if (!call.result?.ok) continue;
+    let list = [];
+    if (call.name === 'rank_players_for_league') list = call.result.draft_candidates || [];
+    if (['analyze_injury_replacements', 'analyze_current_injury_scenario'].includes(call.name)) list = call.result.candidates || [];
+    for (const player of list) {
+      const id = String(player.player_id ?? '');
+      if (/^[1-9]\d{0,9}$/.test(id) && typeof player.name === 'string') players.set(id, player);
+    }
+  }
+  const normalize = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  for (const [id, player] of players) {
+    const name = normalize(player.name);
+    // Prefer a player heading/name in bold; avoid attaching to an opening recap.
+    const elements = [...body.querySelectorAll('h3, p')];
+    const target = elements.find(el => [...el.querySelectorAll('strong')].some(strong => normalize(strong.textContent).includes(name)))
+      || elements.find(el => normalize(el.textContent.replace(/^\s*(?:\d+[.)]|[•*-])\s*/, '')).startsWith(name));
+    if (!target) continue;
+    const portrait = document.createElement('span');
+    portrait.className = 'inline-player-portrait';
+    const initials = document.createElement('span');
+    initials.textContent = player.name.trim().split(/\s+/).map(word => word[0]).slice(0, 2).join('');
+    initials.setAttribute('aria-hidden', 'true');
+    const img = document.createElement('img');
+    img.alt = `${player.name} headshot`;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.referrerPolicy = 'no-referrer';
+    img.addEventListener('error', () => img.remove(), {once: true});
+    img.src = `https://a.espncdn.com/i/headshots/nba/players/full/${id}.png`;
+    portrait.append(initials, img);
+    const row = document.createElement('div');
+    row.className = 'player-recommendation-heading';
+    target.replaceWith(row);
+    row.append(portrait, target);
+  }
+}
+
 function addMessage(role, content, calls = [], remember = true) {
   if (remember) {
     activeChat.entries.push({role, content, tool_calls: calls});
@@ -148,6 +232,7 @@ function addMessage(role, content, calls = [], remember = true) {
   if (role !== 'assistant') body.textContent = content;
   article.append(label, body);
   if (role === 'assistant') {
+    attachPlayerPortraits(body, calls);
     for (const call of calls) {
       if (call.name === 'analyze_buy_low_sell_high' && call.result?.ok && window.createFantasyTrend) {
         const chart = window.createFantasyTrend(call.result);

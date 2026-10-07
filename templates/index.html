@@ -4,20 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Your Fantasy Agent · NBA</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=20261007d">
   <script src="/static/trend.js" defer></script>
-  <script src="/static/chat.js" defer></script>
+  <script src="/static/chat.js?v=20261007d" defer></script>
 </head>
 <body>
   <main>
     <aside class="sidebar">
-      <div class="sidebar-brand"><span class="brand-icon">◉</span> YOUR FANTASY AGENT</div>
+      <div class="sidebar-brand"><span class="basketball brand-icon" aria-hidden="true"></span> YOUR FANTASY AGENT</div>
       <p class="sidebar-caption">YOUR CONVERSATIONS</p>
       <nav id="chat-tabs" aria-label="Chat conversations"></nav>
-      <div class="sidebar-bottom"><span class="live-dot"></span> Built for your league</div>
+      <div class="sidebar-bottom"><div class="court-art" aria-hidden="true"><span></span></div><span class="live-dot"></span> Built for your league</div>
     </aside>
     <div class="workspace">
-    <header><div><span class="eyebrow">NBA FANTASY · POINTS LEAGUES</span><h1>Your Fantasy Agent<span class="ball"> ◉</span></h1></div><button id="new-chat" type="button" class="secondary">New chat</button></header>
+    <header><div><span class="eyebrow">NBA FANTASY · POINTS LEAGUES</span><h1>Your Fantasy Agent<span class="basketball title-ball" aria-hidden="true"></span></h1></div><button id="new-chat" type="button" class="secondary">New chat</button></header>
     <details id="scoring-panel" class="scoring" open>
       <summary>Set your league scoring <span class="tag">ESPN defaults · editable</span></summary>
       <p>Enter points awarded per statistic. Penalties are negative; zeros are ignored. Prefilled with ESPN default points scoring. Change any value to match your league.</p>
@@ -45,7 +45,7 @@
       <textarea id="message" placeholder="Show my top 20. Or: analyze Anthony Edwards as of 2026-01-15 in the 2025–26 season." maxlength="8000" rows="3" required></textarea>
       <button id="send" type="submit">Send message ↗</button>
     </form>
-    <footer>Tool calls include their inputs and results. Refresh to resume · New chat opens a separate conversation · Chat tabs stay saved in this browser tab. Agent memory resets when the server restarts.</footer>
+    <footer>Tool calls include their inputs and results. Refresh to resume · New chat opens a separate conversation · Rename or delete chats in the sidebar · Chat tabs stay saved in this browser tab. Agent memory resets when the server restarts.</footer>
     </div>
   </main>
 </body>

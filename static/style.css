@@ -120,3 +120,29 @@ footer { color: #728198; font-size: 10px; text-align: center; line-height: 1.8; 
 .sidebar-brand { letter-spacing: 1px; font-size: 11px; }
 h1 { font-size: clamp(28px, 3.5vw, 42px); }
 header { margin-bottom: 24px; }
+
+/* Quiet court details and accessible conversation controls. */
+.basketball { display: inline-block; flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: #f7a35e url('/static/basketball.svg') center / contain no-repeat; box-shadow: 0 0 24px #ef944522; }
+.title-ball { width: 34px; height: 34px; margin-left: 12px; vertical-align: middle; }
+.chat-row { display: flex; align-items: center; gap: 2px; border: 1px solid transparent; border-radius: 9px; }
+.chat-row.active { background: #ffac6812; border-color: #ffac6833; }
+.chat-row .chat-tab { flex: 1; min-width: 0; border: 0; background: transparent; }
+.chat-row.active .chat-tab { color: #ffd3af; }
+.chat-action { flex-shrink: 0; width: 30px; height: 34px; padding: 0; border-radius: 6px; background: transparent; color: #91a0b6; font-size: 18px; }
+.chat-action:hover { background: #ffffff0d; color: #ffca9f; }
+.delete-chat:hover { color: #ffb0a0; background: #ff756112; }
+.chat-row button:focus-visible { outline: 2px solid #f9ae6b; outline-offset: -2px; }
+.court-art { position: relative; height: 115px; margin: 0 0 24px; border: 1px solid #efab7630; border-radius: 9px; overflow: hidden; background: repeating-linear-gradient(90deg, transparent 0 22px, #efab7605 23px 24px); }
+.court-art::before { content: ''; position: absolute; width: 140px; height: 140px; border: 1px solid #efab7630; border-radius: 50%; left: 50%; top: -80px; transform: translateX(-50%); }
+.court-art::after { content: ''; position: absolute; width: 64px; height: 65px; border: 1px solid #efab7640; border-top: 0; left: 50%; top: 0; transform: translateX(-50%); }
+.court-art span { position: absolute; width: 24px; height: 24px; border: 2px solid #efab7660; border-radius: 50%; left: calc(50% - 12px); top: 15px; }
+#messages:empty { background: radial-gradient(ellipse at center, #f9ae6b08, transparent 70%); }
+@media (max-width: 850px) { .chat-row { flex: 0 0 auto; max-width: 260px; } .chat-row .chat-tab { max-width: 180px; } }
+@media (max-width: 500px) { .title-ball { width: 25px; height: 25px; margin-left: 7px; } .chat-action { width: 34px; height: 40px; } }
+
+.player-recommendation-heading { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding-top: 10px; border-top: 1px solid #e9a16620; }
+.player-recommendation-heading > p, .player-recommendation-heading > h3 { margin: 0; min-width: 0; flex: 1; }
+.inline-player-portrait { position: relative; flex: 0 0 64px; width: 64px; height: 54px; display: grid; place-items: center; overflow: hidden; border-radius: 10px; background: #303647; border: 1px solid #e9a16630; vertical-align: middle; }
+.inline-player-portrait > span { color: #eeb383; font-size: 19px; font-weight: 700; }
+.inline-player-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #202936; }
+@media (max-width: 500px) { .inline-player-portrait { flex-basis: 52px; width: 52px; height: 46px; } .player-recommendation-heading { gap: 9px; } }

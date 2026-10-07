@@ -20,8 +20,6 @@ steps:
       - --min-instances=0
       - --max-instances=1
       - --timeout=600
-      - --no-allow-unauthenticated
-      - --iap
       - --quiet
 substitutions:
   _REGION: us-east1
