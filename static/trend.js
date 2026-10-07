@@ -1,7 +1,7 @@
 // Charts use actual tool results; all rolling windows end at the selected game.
 (function () {
   const NS = 'http://www.w3.org/2000/svg';
-  const colors = {game: '#8998b0', four: '#70dac7', ten: '#bdabff', baseline: '#f9ae6b'};
+  const colors = {game: '#64748b', four: '#087f70', ten: '#7652bd', baseline: '#b65c20'};
   function svgNode(tag, attrs = {}, text) {
     const node = document.createElementNS(NS, tag);
     for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
@@ -54,15 +54,15 @@
     svg.append(svgNode('rect', {x: shadeStart, y: pad.top, width: width-pad.right-shadeStart, height: plotHeight, fill: '#bdabff', opacity: 0.055}));
     for (let index = 0; index <= 4; index++) {
       const score = low + (high - low) * index / 4;
-      svg.append(svgNode('line', {x1: pad.left, x2: width-pad.right, y1: y(score), y2: y(score), stroke: '#344155', 'stroke-width': 1}),
-        svgNode('text', {x: pad.left-9, y: y(score)+4, 'text-anchor': 'end', fill: '#a9b4c7', 'font-size': 14}, score.toFixed(0)));
+      svg.append(svgNode('line', {x1: pad.left, x2: width-pad.right, y1: y(score), y2: y(score), stroke: '#dce3ec', 'stroke-width': 1}),
+        svgNode('text', {x: pad.left-9, y: y(score)+4, 'text-anchor': 'end', fill: '#5b6b80', 'font-size': 14}, score.toFixed(0)));
     }
-    svg.append(svgNode('text', {x: pad.left, y: 12, fill: '#a9b4c7', 'font-size': 10, class: 'trend-axis-title'}, 'FP / GAME'));
+    svg.append(svgNode('text', {x: pad.left, y: 12, fill: '#5b6b80', 'font-size': 10, class: 'trend-axis-title'}, 'FP / GAME'));
     for (let index = 0; index <= 3; index++) {
       const day = dates[0] + (dates.at(-1) - dates[0]) * index / 3;
       const label = new Date(day).toISOString().slice(5, 10);
       svg.append(svgNode('text', {x: pad.left+plotWidth*index/3, y: height-15,
-        'text-anchor': index === 0 ? 'start' : index === 3 ? 'end' : 'middle', fill: '#a9b4c7', 'font-size': 14}, label));
+        'text-anchor': index === 0 ? 'start' : index === 3 ? 'end' : 'middle', fill: '#5b6b80', 'font-size': 14}, label));
     }
     svg.append(svgNode('line', {x1: pad.left, x2: width-pad.right, y1: y(baseline), y2: y(baseline),
       stroke: colors.baseline, 'stroke-width': 1.6, 'stroke-dasharray': '6 5'}));
@@ -75,8 +75,8 @@
     for (let index = 0; index < games.length; index++) svg.append(svgNode('circle', {cx: x(index), cy: y(games[index].fantasy_points), r: 2, fill: colors.game, opacity: 0.7}));
     addLine(ten, colors.ten, 2.6);
     addLine(four, colors.four, 2.6);
-    const guide = svgNode('line', {y1: pad.top, y2: height-pad.bottom, stroke: '#dae5f2', 'stroke-dasharray': '3 4', opacity: 0.45});
-    const marker = svgNode('circle', {r: 4.5, fill: '#eff4ff', stroke: '#171c28', 'stroke-width': 2});
+    const guide = svgNode('line', {y1: pad.top, y2: height-pad.bottom, stroke: '#53657d', 'stroke-dasharray': '3 4', opacity: 0.45});
+    const marker = svgNode('circle', {r: 4.5, fill: '#ffffff', stroke: '#34445c', 'stroke-width': 2});
     svg.append(guide, marker);
     const readout = document.createElement('div');
     readout.className = 'trend-readout';

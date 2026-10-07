@@ -146,3 +146,65 @@ header { margin-bottom: 24px; }
 .inline-player-portrait > span { color: #eeb383; font-size: 19px; font-weight: 700; }
 .inline-player-portrait img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; background: #202936; }
 @media (max-width: 500px) { .inline-player-portrait { flex-basis: 52px; width: 52px; height: 46px; } .player-recommendation-heading { gap: 9px; } }
+
+/* Warm light palette, with basketball orange as the accent. */
+:root { color-scheme: light; color: #263245; background: #f6f4f0; }
+body { background: radial-gradient(ellipse at 90% 0%, #fce8d5 0, #f8f6f2 50%, #f0f2f5 100%); }
+main { background: #fff; border-color: #e3e5e9; box-shadow: 0 24px 80px #303b5010; }
+.sidebar { background: #f3f4f6; border-color: #e0e3e8; }
+.sidebar-brand { color: #293448; }
+.sidebar-caption, .sidebar-bottom { color: #647187; }
+.workspace { background: linear-gradient(145deg, #fff, #fdfbf8 75%); }
+h1 { color: #243044; }
+.eyebrow { color: #a85017; }
+header button.secondary, button.secondary { background: #fff; color: #344157; border: 1px solid #d6dce4; }
+header button.secondary:hover { background: #f1f3f6; }
+.scoring { background: #f8f9fb; border-color: #dce2e9; box-shadow: none; }
+.scoring p, .note, .intro { color: #58667a; }
+.tag { background: #e8edf3; color: #4c5c72; }
+.weights label { color: #58667a; }
+.weights input, input, textarea { color: #243044; background: #fff; border-color: #cbd4df; }
+input:focus, textarea:focus { outline-color: #b65a20; }
+button, #apply-scoring { background: #f5a467; color: #3b2415; }
+button:hover, #apply-scoring:hover { background: #ee9553; }
+.chat-tab { color: #536178; }
+.chat-row .chat-tab:hover { background: #e7ebf0; color: #27364a; }
+.chat-row.active { background: #fff0e3; border-color: #e8bb96; }
+.chat-row.active .chat-tab { color: #8b461b; }
+.chat-action { color: #617087; background: transparent; }
+.chat-action:hover { background: #e4e9ef; color: #8c4518; }
+.delete-chat:hover { background: #ffe8e3; color: #a43124; }
+.capabilities span { color: #526278; background: #fff; border-color: #d9e1e9; }
+#messages { scrollbar-color: #c7d0dc transparent; }
+#messages:empty { background: radial-gradient(ellipse at center, #f6ad6b12, transparent 70%); }
+#messages:empty::before { color: #66758a; }
+article { border-color: #dce3eb; }
+article.assistant { background: #fff; border-left-color: #d58a51; }
+article.user { background: #edf3fb; border-color: #d3e0ef; }
+article > strong { color: #99501f; }
+.answer strong { color: #263b55; }
+.answer h3 { color: #293e59; }
+.answer hr { border-color: #dce3eb; }
+.tool-call { border-color: #d5e0e5; background: #f7faf9; }
+.tool-call summary { color: #226657; }
+.tool-call strong { color: #4a5d72; }
+.tool-call pre { background: #edf2f5; color: #293b50; }
+#chat-form { background: #fff; border-color: #cbd5e1; box-shadow: 0 4px 20px #33415508; }
+#chat-form > label { color: #576880; }
+#message { color: #263245; background: transparent; }
+#message::placeholder { color: #718096; }
+#chat-form:focus-within { border-color: #b86831; }
+#status { color: #96521e; }
+footer { color: #64748b; }
+.fantasy-trend { background: #fbfcfe; border-color: #d9e2ec; }
+.fantasy-trend figcaption { color: #293b50; }
+.fantasy-trend .trend-subtitle, .fantasy-trend .trend-note, .trend-legend { color: #586a80; }
+.trend-readout { background: #eaf0f7; color: #2b405a; }
+.court-art { border-color: #bc753e55; background: repeating-linear-gradient(90deg, transparent 0 22px, #bc753e06 23px 24px); }
+.court-art::before { border-color: #bc753e55; }
+.court-art::after { border-color: #bc753e66; }
+.court-art span { border-color: #bc753e88; }
+.player-recommendation-heading { border-color: #e8d9cd; }
+.inline-player-portrait { background: #f8eee5; border-color: #e1c8b4; }
+.inline-player-portrait > span { color: #945122; }
+.inline-player-portrait img { background: #f0f3f7; }
