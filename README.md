@@ -2,7 +2,8 @@
 
 # Your Fantasy Agent — NBA Fantasy Points-League Agent
 
-Your Fantasy Agent uses ESPN's 2026–2027 player projections and your league's scoring
+Your Fantasy Agent helps NBA fantasy points-league managers make draft and roster decisions.
+It uses ESPN's 2026–2027 player projections and your league's scoring
 weights to rank projected fantasy points **per game**. Ask for an overall pick
 and it returns three draft candidates with custom ranks, per-game scores, and
 the statistics driving their value. Gemini chooses the tool and explains the
@@ -29,19 +30,205 @@ agent. Unconfirmed edits have no effect. Later chat instructions can update
 scoring without the UI overwriting them; confirm the UI again to replace rules.
 Confirmed settings survive refresh within the browser session.
 
+## Data sources and loading
+
+The agent retrieves JSON from ESPN's public NBA and fantasy basketball endpoints when a tool runs.
+The player feed supplies season projections, player IDs, and preseason outlooks. Player game logs
+supply dated regular-season stats. Team schedules and game summaries supply game IDs, box scores,
+and any dated game reports used for historical injury scenarios.
+
+Run the app as shown above and submit one of the questions below to load its data. The Python tools
+send the required query parameters and projection filter, then cache successful results in memory.
+The data is retrieved on demand and requires internet access. The ESPN endpoints used here do not
+require an ESPN login.
+
 ## Three sample queries
 
-1. "Use ESPN default points scoring and 2026–2027 projections. Who should I
-   draft at overall pick 10?" Then, in the same chat, ask "Change STL to 10;
-   keep the other weights. Show ranks 10–15." This checks remembered rules.
-2. "Use ESPN default points scoring. Analyze Zach LaVine for Buy-Low or
-   Sell-High in the 2025–26 season, as of 2025-12-08. Compare his last 4 and
-   10 games with his earlier baseline." Inspect the interactive chart and traces.
-3. "Using ESPN default points scoring, analyze Nikola Jokic’s same-team injury
-   replacements as of 2026-01-05 in 2025–26. Exclude the team’s top six by
-   fantasy points per game." This historical analysis can take longer because it
-   fetches and validates the team's individual game box scores.
+These are actual runs from 2026-11-11, using `vertex_ai/gemini-3.5-flash-lite` in both columns. Each prompt went to a fresh `POST /chat` session and directly to the same Gemini model as a single user message with no tools or system prompt. The expected answers were checked against the tool data.
 
+### 1. Draft candidates at pick 10
+
+> Use ESPN default points scoring and the 2026–27 projections. At overall draft pick 10, assume ranks 1–9 are taken. Give the three candidate names, ranks and projected fantasy points per game.
+
+**Expected answer.** Jayson Tatum (#10, 48.100 FP/G), Anthony Edwards (#11, 47.216 FP/G), and Domantas Sabonis (#12, 46.696 FP/G). These were the live projections on November 11, 2026. The ranking can change as ESPN updates the feed.
+
+**Data.** `GET https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/2027/players?view=kona_player_info` with the full-pool filter in `tools.py`. `rank_players_for_league` scores source-1/split-0 projected totals per projected game. [ESPN projections](https://fantasy.espn.com/basketball/players/projections).
+
+<details>
+<summary>Actual answers side by side</summary>
+
+<table>
+<tr><th>Your Fantasy Agent with tools</th><th>Same model with no tools or system prompt</th></tr>
+<tr>
+<td valign="top">
+Using ESPN default points-league scoring rules (<code>PTS=1, REB=1, AST=2, STL=4, BLK=4, TO=-2, FGM=2, FGA=-1, FTM=1, FTA=-1, 3PM=1</code>) and the <strong>2026–27</strong> ESPN season projections, here are the top three draft candidates at <strong>overall pick 10</strong>.<br>
+<br>
+<em>Note on Availability:</em> Assuming the first 9 custom-ranked players are already taken is a hypothetical board, not real ESPN ADP or proof of availability.<br>
+<br>
+<strong>1. Jayson Tatum</strong><br>
+• <strong>Position:</strong> PF (SF/PF eligible)<br>
+• <strong>Custom Rank:</strong> 10<br>
+• <strong>Projected Fantasy Points:</strong> 48.1 FP/G (3,367 total points across 70 projected games)<br>
+• <strong>Pro:</strong> High projected scoring (26.7 PPG) and strong three-point contributions (3.4 3PM/G), with ESPN noting potential for an even larger role and increased usage following offseason roster changes.<br>
+• <strong>Con:</strong> Moderate turnover load (-5.6 FP/G from 2.8 TO/G) and missed time in previous seasons.<br>
+<br>
+<strong>2. Anthony Edwards</strong><br>
+• <strong>Position:</strong> SG (SG/SF eligible)<br>
+• <strong>Custom Rank:</strong> 11<br>
+• <strong>Projected Fantasy Points:</strong> 47.2 FP/G (2,408 total points across 51 projected games)<br>
+• <strong>Pro:</strong> Elite scoring upside (30.3 PPG) and prolific three-point volume (3.6 3PM/G); ESPN highlights potential easier looks playing alongside new point guard addition LaMelo Ball.<br>
+• <strong>Con:</strong> Lower projected game total (51 games) compared to standard durability candidates.<br>
+<br>
+<strong>3. Domantas Sabonis</strong><br>
+• <strong>Position:</strong> C (PF/C eligible)<br>
+• <strong>Custom Rank:</strong> 12<br>
+• <strong>Projected Fantasy Points:</strong> 46.7 FP/G (3,222 total points across 69 projected games)<br>
+• <strong>Pro:</strong> Elite rebounding volume (13.6 REB/G) and high assist production (6.8 AST/G) driving heavy foundational value in points leagues.<br>
+• <strong>Con:</strong> Lower defensive stats (0.5 BLK/G, 0.8 STL/G) yield fewer defensive bonus contributions under standard defensive weightings.
+</td>
+<td valign="top">
+I cannot provide candidate names, ranks, or projected fantasy points for the <strong>2026–27 season</strong>, as official ESPN projections for that timeframe do not yet exist. Fantasy projections are typically released just weeks before the start of a new season and rely on current rosters, recent performance, and up-to-date aging curves.<br>
+<br>
+If you meant the <strong>2024–25 season</strong> (or another specific recent year), please let me know which sport you are drafting for (Football, Basketball, Hockey, or Baseball), and I would be happy to provide the top candidates available at pick 10 based on ESPN default scoring!
+</td>
+</tr>
+</table>
+
+</details>
+
+### 2. Zach LaVine buy-low screen
+
+> Using ESPN default points scoring, analyze Zach LaVine's 2025–26 buy-low or sell-high signal as of December 8, 2025. Give his fantasy points per game over the last 4 and last 10 games, and the earlier baseline.
+
+**Expected answer.** Potential buy-low. He averaged **31.75 FP/G** over his last four games and **25.90 FP/G** over his last ten, versus **32.67 FP/G** over the 12 earlier games. The tool classifies the ten-game window against the earlier baseline.
+
+**Data.** `GET https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/3064440/gamelog?season=2026`. `analyze_buy_low_sell_high` in `buy_low.py` uses played regular-season games through December 8, 2025. [ESPN game log](https://www.espn.com/nba/player/gamelog/_/id/3064440?season=2026).
+
+<details>
+<summary>Actual answers side by side</summary>
+
+<table>
+<tr><th>Your Fantasy Agent with tools</th><th>Same model with no tools or system prompt</th></tr>
+<tr>
+<td valign="top">
+As of December 8, 2025, during the 2025–26 NBA season, here is Zach LaVine’s buy-low/sell-high performance breakdown using ESPN default points-league scoring:<br>
+<br>
+<strong>Fantasy Points Per Game (FP/G)</strong><br>
+• <strong>Earlier Baseline (Oct 22 – Nov 16, 12 games):</strong> 32.67 FP/G<br>
+• <strong>Last 10 Games (Nov 19 – Dec 8):</strong> 25.90 FP/G (-20.7% change)<br>
+• <strong>Last 4 Games (Nov 30 – Dec 8):</strong> 31.75 FP/G (-2.8% change)<br>
+<br>
+<hr><br>
+<br>
+<strong>Evidence &amp; Risk Analysis</strong><br>
+• <strong>Evidence:</strong> The last-10 signal flags a potential buy-low opportunity driven primarily by a dip in scoring contributions (PTS contribution dropped by 4.47 FP/G due to fewer points and lower field-goal percentage) and reduced free-throw attempts, despite steady playing time (~32.6 minutes per game). Meanwhile, his last-4 sample shows a strong bounce-back to 31.75 FP/G, heavily aided by defensive stats (steals and blocks contributions).<br>
+• <strong>Risk:</strong> This heuristic screening relies purely on past box scores; a multi-game shooting slump or variance in defensive counting stats does not guarantee a rebound or future production.
+</td>
+<td valign="top">
+*Note: Since we are projecting into the hypothetical landscape of the <strong>2025–26 NBA season</strong> as of <strong>December 8, 2025</strong>, the following analysis is built on Zach LaVine’s typical career production curves, role context, and standard ESPN fantasy points league scoring trends (where points = 1, rebounds = 1.2, assists = 1.5, steals = 3, blocks = 3, turnovers = -1, and made threes = 0.5).*<br>
+<br>
+<hr><br>
+<br>
+<strong>Zach LaVine: Fantasy Snapshot (As of December 8, 2025)</strong><br>
+<br>
+<strong>The Numbers (ESPN Default Points Scoring)</strong><br>
+• <strong>Earlier Baseline (October – Mid-November):</strong> ~34.5 FP/G<br>
+• <strong>Last 10 Games:</strong> ~38.2 FP/G<br>
+• <strong>Last 4 Games:</strong> ~44.8 FP/G<br>
+<br>
+<hr><br>
+<br>
+<strong>Recent Trend Analysis</strong><br>
+<br>
+1.  <strong>The Baseline:</strong> Coming into the season or during the first month, LaVine’s fantasy output hovered around his standard mid-tier starter value (~34-35 FP/G). He was getting standard volume, but efficiency dips and occasional defensive quiet nights capped his ceiling.<br>
+2.  <strong>The 10-Game Window:</strong> Over the middle stretch of November into early December, LaVine saw an uptick in usage—potentially due to an offensive shift or a minor teammate injury opening up secondary playmaking duties. His scoring efficiency ticked up, boosting his baseline by nearly 4 fantasy points per game.<br>
+3.  <strong>The Last 4 Games (The Spike):</strong> LaVine has hit a scorching hot streak over the past week, putting up mid-to-high 40s in ESPN fantasy points. This recent explosion is largely driven by elevated three-point volume, increased free-throw trips, and a spike in secondary assists that heavily inflate points league value.<br>
+<br>
+<hr><br>
+<br>
+<strong>The Verdict: SELL HIGH</strong><br>
+<br>
+As of December 8, 2025, Zach LaVine is flashing a clear <strong>Sell-High</strong> signal.<br>
+<br>
+<strong>Why It’s a Sell-High:</strong><br>
+• <strong>Unsustainable Efficiency:</strong> A surge into the 45 FP/G range puts LaVine in fringe star territory, typically matching the output of early-round draft picks. Unless his team&#x27;s entire offensive system has permanently changed, LaVine is likely over-performing his true talent baseline over this 4-game sample.<br>
+• <strong>Injury History Risk:</strong> LaVine remains one of the most volatile assets in fantasy basketball due to his lengthy medical history. When his value peaks like this, it is the optimal window to cash out and acquire a more durable, consistent top-30 fantasy asset.<br>
+• <strong>Trade Strategy:</strong> Package LaVine to an unsuspecting manager in your league who is dazzled by his recent game logs. Target managers looking for immediate guard scoring, and tier up to a more well-rounded forward or center who provides safer defensive stats (blocks/steals) that don&#x27;t fluctuate as wildly as LaVine&#x27;s scoring nights.
+</td>
+</tr>
+</table>
+
+</details>
+
+### 3. Denver injury replacement screen
+
+> Using ESPN default points scoring, evaluate Nikola Jokic's same-team injury replacements as of January 5, 2026, in 2025–26. Exclude Denver's top six by actual fantasy points per game. Who are the top three eligible candidates, and is the absence sample sufficient?
+
+**Expected answer.** Jalen Pickett, Zeke Nnaji, and Spencer Jones, in that order. The most recent 20 team games included **4 without Jokic** and **16 with him**. All three clear the minimum of three appearances in each group for an observed comparison. Four team games without Jokic provide limited evidence for a sustained change.
+
+**Data.** `GET https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/7/schedule?season=2026&seasontype=2` plus `GET /apis/site/v2/sports/basketball/nba/summary?event=<event_id>` for 36 games through the cutoff. `analyze_injury_replacements` in `injury_replacement.py` uses Jokic's ESPN game log (player ID `3112335`) to resolve his historical team. [Denver schedule](https://www.espn.com/nba/team/schedule/_/name/den?season=2026) · [Last box score in the sample](https://www.espn.com/nba/boxscore/_/gameId/401810362).
+
+<details>
+<summary>Actual answers side by side</summary>
+
+<table>
+<tr><th>Your Fantasy Agent with tools</th><th>Same model with no tools or system prompt</th></tr>
+<tr>
+<td valign="top">
+Evaluating Nikola Jokic&#x27;s same-team injury replacements as of January 5, 2026, using ESPN default points scoring and excluding Denver&#x27;s top six players by actual fantasy points per game (Nikola Jokic, Jamal Murray, Aaron Gordon, Peyton Watson, Cameron Johnson, and Christian Braun), the top three eligible candidates based on historical team box scores are:<br>
+<br>
+<strong>Jalen Pickett</strong><br>
+• <strong>Custom FP/G:</strong> 11.7<br>
+• <strong>Pros:</strong> Averaged 25.5 minutes and 25.25 fantasy points per appearance across 4 team games without Jokic, compared to 13.4 minutes and 11.2 fantasy points per appearance when Jokic was present.<br>
+• <strong>Cons:</strong> The sample size is limited to 4 games without the target, serving as a rotation watch rather than a guaranteed larger role.<br>
+<br>
+<strong>Zeke Nnaji</strong><br>
+• <strong>Custom FP/G:</strong> 8.3<br>
+• <strong>Pros:</strong> Averaged 24.7 minutes and 31.33 fantasy points per appearance across 3 games without Jokic, compared to 8.8 minutes and 5.23 fantasy points per appearance when Jokic was present.<br>
+• <strong>Cons:</strong> Limited to 3 games in the absence comparison window, making the sample size quite small.<br>
+<br>
+<strong>Spencer Jones</strong><br>
+• <strong>Custom FP/G:</strong> 16.6<br>
+• <strong>Pros:</strong> Averaged 36.0 minutes and 21.5 fantasy points per appearance across 4 games without Jokic, compared to 27.1 minutes and 23.06 fantasy points per appearance when Jokic was present.<br>
+• <strong>Cons:</strong> Sample size is restricted to 4 games without the target, and fantasy production per appearance slightly dipped despite an increase in playing time.<br>
+<br>
+<strong>Is the absence sample sufficient?</strong><br>
+No, the absence sample is relatively small—limited to just 4 team games without Jokic in the recent comparison window (spanning from November 24, 2025, to January 5, 2026). While observed minutes and fantasy points increased for these candidates when Jokic was absent, these differences represent rotation watch indicators rather than proven, sustainable replacements.<br>
+<br>
+<em>Note: Excluding the team&#x27;s top six is a waiver-candidate heuristic, and actual free-agent availability in your league is unknown. Source context: [ESPN Report](https://www.espn.com/nba/story/_/id/47468135).</em>
+</td>
+<td valign="top">
+As of my current knowledge cutoff, I do not have access to real-time data, live statistics, or game logs for the 2025–26 NBA season. Because January 5, 2026, is a future date relative to my training data, I cannot pull the exact fantasy points per game (FP/G) or specific injury absence samples for Nikola Jokic and the Denver Nuggets for that timeline.<br>
+<br>
+To properly evaluate this scenario using <strong>ESPN default fantasy scoring</strong> (typically: Points = 1, Rebounds = 1.2, Assists = 1.5, Steals = 3, Blocks = 3, Turnovers = -1, Field Goal Misses = -0.2, Free Throw Misses = -0.2), you would typically follow this analytical framework:<br>
+<br>
+<strong>1. Establish the Baseline (Denver&#x27;s Top 6)</strong><br>
+• Pull the total or per-game ESPN fantasy points for the entire Nuggets roster up to January 5, 2026.<br>
+• Identify and <strong>exclude</strong> the top 6 players (which usually features Jokic himself, Jamal Murray, Michael Porter Jr., Aaron Gordon, and other primary starters).<br>
+<br>
+<strong>2. Identify Potential Replacements (The Depth Chart)</strong><br>
+When Jokic misses time, Denver typically relies on a combination of backup centers, power forwards, and usage bumps to secondary ball-handlers. Eligible candidates usually include:<br>
+• <strong>Backup Centers:</strong> Players filling the direct center minutes (e.g., traditional backup bigs or small-ball 5s). Historically, Jokic&#x27;s massive assist and rebound volume cannot be replaced by one person, so center replacements get a massive boost in rebounding and put-back opportunities.<br>
+• <strong>Usage Absorbers:</strong> Wings or guards whose usage rates spike when the offense isn&#x27;t running entirely through the high post.<br>
+<br>
+<strong>3. Evaluate the &quot;Top Three Eligible Candidates&quot;</strong><br>
+To find the top three, you would calculate the per-game fantasy output for the remaining bench players <em>specifically during games where Jokic was absent</em>.<br>
+• <strong>Candidate A (The Primary Backup Big):</strong> Usually sees the largest spike in rebounds and blocks, yielding high floor value in standard leagues.<br>
+• <strong>Candidate B (The Stretch/Small-Ball 4):</strong> Often benefits from increased spacing and auxiliary passing opportunities.<br>
+• <strong>Candidate C (The Secondary Guard):</strong> Inherits secondary playmaking duties, leading to a boost in assists and potential scoring volume.<br>
+<br>
+<strong>4. Assess Sample Sufficiency</strong><br>
+• <strong>Is the absence sample sufficient?</strong> To determine if a sample size of games without Jokic is statistically meaningful by January 5, analysts generally look for a threshold of <strong>at least 5 to 10 games</strong>. <br>
+• If Jokic has only missed 1 or 2 games by that date, the data is heavily skewed by small-sample-size variance (e.g., one unsustainable shooting night or an outlier blowout). If he has missed 5+ games, the trends in minutes distribution and usage rate become actionable for fantasy managers looking to make a waiver wire claim or stream a replacement. <br>
+<br>
+If you have specific box score data or game logs from that stretch that you would like to input, I would be happy to run the ESPN fantasy point calculations and analyze the top three performers for you!
+</td>
+</tr>
+</table>
+
+</details>
+
+The agent's summary overstates the scoring trend. Spencer Jones's minutes rose, and his fantasy points per appearance fell from 23.06 with Jokic to 21.50 without him.
 
 ## Tools
 
@@ -116,8 +303,7 @@ projections/outlooks are never used as historical performance or news evidence.
   once a full window exists. Hover/tap or arrow keys inspect dated points.
   Charts restore with session history and need no external chart service/CDN.
 
-The endpoint is a public ESPN feed, not a supported API contract. Local access
-is tested; Cloud Run access and future schema stability still require checking.
+These public ESPN endpoints and their response fields can change.
 References: [ESPN projections](https://fantasy.espn.com/basketball/players/projections),
 [ESPN field mapping reference](https://github.com/cwendt94/espn-api/blob/master/espn_api/basketball/constant.py),
 [LiteLLM tool-calling protocol](https://docs.litellm.ai/docs/completion/function_call).
